@@ -34,6 +34,8 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void newBall() {
+        ball = new Ball((GAME_WIDTH / 2) - (BALL_DIAMETER / 2), (GAME_HEIGHT / 2) - (BALL_DIAMETER / 2), BALL_DIAMETER,
+                BALL_DIAMETER);
     }
 
     public void newPaddles() {
@@ -53,26 +55,64 @@ public class GamePanel extends JPanel implements Runnable {
     public void draw(Graphics g) {
         paddle1.draw(g);
         paddle2.draw(g);
+        ball.draw(g);
+        score.draw(g);
     }
 
     public void move() {
-
+        paddle1.move();
+        paddle2.move();
+        ball.move();
     }
 
     public void checkColision() {
-        if (paddle1.y <= 0) {
-            paddle1.y = 0;
+        if (ball.intersects(paddle1)) {
+            ball.xVelocity = Math.abs(ball.xVelocity);
+            ball.xVelocity++;
+            if (ball.yVelocity > 0) {
+                ball.yVelocity++;
+
+            } else {
+                ball.yVelocity--;
+            }
+            ball.setXDirection(ball.xVelocity);
+            ball.setYDirection(ball.yVelocity);
         }
-        if (paddle1.y > GAME_HEIGHT - PADDLE_HEIGHT) {
-            paddle1.y = GAME_HEIGHT - PADDLE_HEIGHT;
+        if (ball.intersects(paddle2)) {
+            ball.xVelocity = Math.abs(ball.xVelocity);
+            ball.xVelocity++;
+            if (ball.yVelocity > 0) {
+                ball.yVelocity++;
+
+            } else {
+                ball.yVelocity--;
+            }
+            ball.setXDirection(-ball.xVelocity);
+            ball.setYDirection(ball.yVelocity);
+        }
+        if (paddle1.y <= 0 || paddle1.y >= GAME_HEIGHT - PADDLE_HEIGHT) {
+            paddle1.setYDirection(-paddle1.yVelocity);
         }
 
-        if (paddle2.y <= 0) {
-            paddle2.y = 0;
+        if (paddle2.y <= 0 || paddle2.y >= GAME_HEIGHT - PADDLE_HEIGHT) {
+            paddle2.setYDirection(-paddle2.yVelocity);
         }
-        if (paddle2.y > GAME_HEIGHT - PADDLE_HEIGHT) {
-            paddle2.y = GAME_HEIGHT - PADDLE_HEIGHT;
+
+        if (ball.y <= 0 || ball.y >= GAME_HEIGHT - BALL_DIAMETER) {
+            ball.setYDirection(-ball.yVelocity);
         }
+
+        if (ball.x <= 0) {
+            score.player2++;
+            newPaddles();
+            newBall();
+        }
+        if (ball.x >= GAME_WIDTH - BALL_DIAMETER) {
+            score.player1++;
+            newPaddles();
+            newBall();
+        }
+
     }
 
     public void run() {
