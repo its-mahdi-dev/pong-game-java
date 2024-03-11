@@ -37,15 +37,22 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void newPaddles() {
-
+        paddle1 = new Paddle(0, (GAME_HEIGHT / 2) - (PADDLE_HEIGHT / 2), PADDLE_WIDTH, PADDLE_HEIGHT, 1);
+        paddle2 = new Paddle(GAME_WIDTH - PADDLE_WIDTH, (GAME_HEIGHT / 2) - (PADDLE_HEIGHT / 2), PADDLE_WIDTH,
+                PADDLE_HEIGHT, 2);
     }
 
     public void paint(Graphics g) {
 
+        Image image = createImage(getWidth(), getHeight());
+        graphics = image.getGraphics();
+        draw(graphics);
+        g.drawImage(image, 0, 0, this);
     }
 
     public void draw(Graphics g) {
-
+        paddle1.draw(g);
+        paddle2.draw(g);
     }
 
     public void move() {
@@ -53,20 +60,49 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void checkColision() {
+        if (paddle1.y <= 0) {
+            paddle1.y = 0;
+        }
+        if (paddle1.y > GAME_HEIGHT - PADDLE_HEIGHT) {
+            paddle1.y = GAME_HEIGHT - PADDLE_HEIGHT;
+        }
 
+        if (paddle2.y <= 0) {
+            paddle2.y = 0;
+        }
+        if (paddle2.y > GAME_HEIGHT - PADDLE_HEIGHT) {
+            paddle2.y = GAME_HEIGHT - PADDLE_HEIGHT;
+        }
     }
 
     public void run() {
 
+        long lastTime = System.nanoTime();
+        double amountOfTicks = 60.0;
+        double ns = 1000000000 / amountOfTicks;
+        double delta = 0;
+        while (true) {
+            long now = System.nanoTime();
+            delta += (now - lastTime) / ns;
+            lastTime = now;
+            if (delta >= 1) {
+                move();
+                checkColision();
+                repaint();
+                delta--;
+            }
+        }
     }
 
     public class AL extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
-
+            paddle1.keyPressed(e);
+            paddle2.keyPressed(e);
         }
 
         public void ketReleased(KeyEvent e) {
-
+            paddle1.ketReleased(e);
+            paddle2.ketReleased(e);
         }
     }
 }
